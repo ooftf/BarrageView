@@ -5,9 +5,11 @@ import android.content.Context;
 import android.graphics.RectF;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -90,6 +92,10 @@ public class BarrageView extends RelativeLayout {
 
     List<LineItem> moving = new ArrayList<>();
     ViewOperator viewCreator;
+    /**
+     * 等待区
+     * 为什么会产生等待区：初始化有多少行，需要知道BarrageView的大小和item的高度所以计算部分需要推后，就会导致addItem可能发生在初始化moving之前，所以就先将item加入到等待区
+     */
     List<Item> waiting = new ArrayList<>();
 
     public void addItem(Object object) {
@@ -181,6 +187,7 @@ public class BarrageView extends RelativeLayout {
                 float lineRight = lineItem.items.get(lineItem.items.size() - 1).rectF.right;
                 left = Math.max(getWidth(), lineRight);
             }
+            next.view.measure(0,0);
             next.rectF = new RectF(left, line * next.view.getMeasuredHeight(), left + next.view.getMeasuredWidth(), (line + 1) * next.view.getMeasuredHeight());
             moving.get(line).items.add(next);
         }
