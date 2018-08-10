@@ -131,9 +131,21 @@ public class BarrageView extends RelativeLayout {
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
+        initMoving();
         /**
-         * 初始化moving
+         * layout
          */
+        for (LineItem lineItem : moving) {
+            for (Item e : lineItem.items) {
+                e.view.layout((int) e.rectF.left, (int) e.rectF.top, (int) e.rectF.right, (int) e.rectF.bottom);
+            }
+
+        }
+    }
+    /**
+     * 初始化moving
+     */
+    private void initMoving() {
         if (moving.size() == 0 && waiting.size() > 0) {
             //计算有多少行
             int lines = getHeight() / waiting.get(0).view.getMeasuredHeight();
@@ -143,9 +155,14 @@ public class BarrageView extends RelativeLayout {
                 moving.add(lineItem);
             }
         }
-        /**
-         * 将等待区的item转移到moving区
-         */
+    }
+    /**
+     * 将等待区的item转移到moving区
+     */
+    private void waitingToMoving() {
+        if(moving.size() == 0){//如果没有初始化不执行这个操作
+            return;
+        }
         Iterator<Item> iterator = waiting.iterator();
         while (iterator.hasNext()) {
             Item next = iterator.next();
@@ -166,15 +183,6 @@ public class BarrageView extends RelativeLayout {
             }
             next.rectF = new RectF(left, line * next.view.getMeasuredHeight(), left + next.view.getMeasuredWidth(), (line + 1) * next.view.getMeasuredHeight());
             moving.get(line).items.add(next);
-        }
-        /**
-         * layout
-         */
-        for (LineItem lineItem : moving) {
-            for (Item e : lineItem.items) {
-                e.view.layout((int) e.rectF.left, (int) e.rectF.top, (int) e.rectF.right, (int) e.rectF.bottom);
-            }
-
         }
     }
 
@@ -239,6 +247,7 @@ public class BarrageView extends RelativeLayout {
             @Override
             public void accept(Long aLong) throws Exception {
                 move();
+                waitingToMoving();
             }
         });
     }
